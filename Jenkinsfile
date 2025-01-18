@@ -4,19 +4,19 @@ pipeline {
     environment {
         DOCKER_IMAGE_APP = "my-python-app"
         DOCKER_IMAGE_TEST = "my-python-test"
-        DOCKER_COMPOSE_FILE = "docker-compose.yml"
+        DOCKER_COMPOSE_FILE = "./Docker/docker-compose.yml"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'pipeline-test', url: 'https://github.com/Celer0n/panda-test.git'
+                git branch: 'test', url: 'https://github.com/Celer0n/panda-test.git'
             }
         }
         stage('Build Docker Image app') {
             steps {
                 script {
-                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_APP} -f Dockerfile.app .", returnStatus: true)
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_APP} -f ./Docker/Dockerfile.app .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
                         error("Stopping pipeline due to failure in building Docker image.")
@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Image test') {
             steps {
                 script {
-                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_TEST} -f Dockerfile.test .", returnStatus: true)
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_TEST} -f ./Docker/Dockerfile.test .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
                         error("Stopping pipeline due to failure in building Docker image.")
