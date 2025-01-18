@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'pipeline-test', url: 'https://github.com/Celer0n/panda-test.git'
+                git branch: 'test', url: 'https://github.com/Celer0n/panda-test.git'
             }
         }
         stage('Build Docker Image app') {
