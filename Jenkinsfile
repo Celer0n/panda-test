@@ -2,20 +2,21 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "my-python-app"
+        DOCKER_IMAGE_APP = "my-python-app"
+        DOCKER_IMAGE_TEST = "my-python-test"
         DOCKER_COMPOSE_FILE = "docker-compose.yml"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'development', url: 'https://github.com/Celer0n/panda-test.git'
+                git branch: 'pipeline-test', url: 'https://github.com/Celer0n/panda-test.git'
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Docker Image app') {
             steps {
                 script {
-                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE} .", returnStatus: true)
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_APP} .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
                         error("Stopping pipeline due to failure in building Docker image.")
@@ -23,6 +24,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image test') {
+            steps {
+                script {
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_TEST} .", returnStatus: true)
+                    if (buildStatus != 0) {
+                        echo "Docker image build failed with status: ${buildStatus}"
+                        error("Stopping pipeline due to failure in building Docker image.")
+                    }
+                }
+            }
+        }
+
         stage('Run Docker Compose') {
             steps {
                 script {
@@ -40,7 +54,7 @@ pipeline {
                     try {
                         sh(
                             script: """
-                            docker exec $(docker ps -q -f ancestor=${DOCKER_IMAGE}) sh -c 'pip install requests pytest && pytest test_app.py'
+                            docker exec \$(docker ps -q -f ancestor=${DOCKER_IMAGE_TEST}) sh -c 'pip install requests pytest && pytest test_app.py'
                             """,
                             returnStatus: true
                         )
