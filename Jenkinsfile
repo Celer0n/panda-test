@@ -9,35 +9,54 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Celer0n/panda-test.git'
+                git branch: 'development', url: 'https://github.com/Celer0n/panda-test.git'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE} .", returnStatus: true)
+                    if (buildStatus != 0) {
+                        echo "Docker image build failed with status: ${buildStatus}"
+                        currentBuild.result = 'FAILURE'
+                        error("Stopping pipeline due to failure in building Docker image.")
+                    }
                 }
             }
         }
         stage('Run Docker Compose') {
             steps {
                 script {
-                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
+                    def composeStatus = sh(script: "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d", returnStatus: true)
+                    if (composeStatus != 0) {
+                        echo "Docker Compose failed with status: ${composeStatus}"
+                        currentBuild.result = 'FAILURE'
+                        error("Stopping pipeline due to failure in Docker Compose.")
+                    }
                 }
             }
         }
         stage('Test Application') {
             steps {
                 script {
-                    sh "pip install requests pytest"
-                    sh "pytest test_app.py"
+                    try {
+                        sh "pip install requests pytest"
+                        sh "pytest test_app.py"
+                    } catch (Exception e) {
+                        echo "Test stage failed: ${e}"
+                        currentBuild.result = 'UNSTABLE' // Mark the build as unstable, not a failure
+                    }
                 }
             }
         }
         stage('Cleanup') {
             steps {
                 script {
-                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down"
+                    try {
+                        sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down"
+                    } catch (Exception e) {
+                        echo "Cleanup stage encountered an error: ${e}"
+                    }
                 }
             }
         }
@@ -46,6 +65,12 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished!'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
