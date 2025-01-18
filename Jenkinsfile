@@ -38,12 +38,12 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Run tests inside the Docker container
-                        sh """
-                        docker exec $(docker ps -q -f ancestor=${DOCKER_IMAGE}) sh -c "
-                            pip install requests pytest && 
-                            pytest test_app.py"
-                        """
+                        sh(
+                            script: """
+                            docker exec $(docker ps -q -f ancestor=${DOCKER_IMAGE}) sh -c 'pip install requests pytest && pytest test_app.py'
+                            """,
+                            returnStatus: true
+                        )
                     } catch (Exception e) {
                         echo "Test stage failed: ${e}"
                         currentBuild.result = 'UNSTABLE'
