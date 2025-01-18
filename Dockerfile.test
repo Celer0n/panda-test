@@ -5,8 +5,7 @@ FROM python:3.9-slim
 WORKDIR /tests
 
 # Копируем файлы приложения (для тестирования) и тесты
-COPY ./app /app
-COPY ./tests /tests
+COPY test-app.py /tests/test-app.py
 
 # Устанавливаем зависимости для тестов
 RUN pip install requests pytest flask
