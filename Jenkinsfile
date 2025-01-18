@@ -18,7 +18,6 @@ pipeline {
                     def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE} .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
-                        currentBuild.result = 'FAILURE'
                         error("Stopping pipeline due to failure in building Docker image.")
                     }
                 }
@@ -30,7 +29,6 @@ pipeline {
                     def composeStatus = sh(script: "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d", returnStatus: true)
                     if (composeStatus != 0) {
                         echo "Docker Compose failed with status: ${composeStatus}"
-                        currentBuild.result = 'FAILURE'
                         error("Stopping pipeline due to failure in Docker Compose.")
                     }
                 }
@@ -40,11 +38,15 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "pip install requests pytest"
-                        sh "pytest test_app.py"
+                        // Run tests inside the Docker container
+                        sh """
+                        docker exec $(docker ps -q -f ancestor=${DOCKER_IMAGE}) sh -c "
+                            pip install requests pytest && 
+                            pytest test_app.py"
+                        """
                     } catch (Exception e) {
                         echo "Test stage failed: ${e}"
-                        currentBuild.result = 'UNSTABLE' // Mark the build as unstable, not a failure
+                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
