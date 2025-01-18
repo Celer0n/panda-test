@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Копируем файлы приложения
-COPY ../app.py /app/app.py
+COPY app.py /app/app.py
 
 # Устанавливаем зависимости для приложения
 RUN pip install flask
