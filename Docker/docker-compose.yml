@@ -3,11 +3,11 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.app
+      dockerfile: ./Docker/Dockerfile.app
     ports:
       - "5000:5000"
   
   testweb:
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: ./Docker/Dockerfile.test
