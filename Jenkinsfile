@@ -16,7 +16,7 @@ pipeline {
         stage('Build Docker Image app') {
             steps {
                 script {
-                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_APP} .", returnStatus: true)
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_APP} -f Dockerfile.app .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
                         error("Stopping pipeline due to failure in building Docker image.")
@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Image test') {
             steps {
                 script {
-                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_TEST} .", returnStatus: true)
+                    def buildStatus = sh(script: "docker build -t ${DOCKER_IMAGE_TEST} -f Dockerfile.test .", returnStatus: true)
                     if (buildStatus != 0) {
                         echo "Docker image build failed with status: ${buildStatus}"
                         error("Stopping pipeline due to failure in building Docker image.")
