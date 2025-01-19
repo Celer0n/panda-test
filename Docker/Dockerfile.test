@@ -1,0 +1,14 @@
+# Используем базовый образ Python
+FROM python:3.9-slim
+
+# Устанавливаем рабочую директорию
+WORKDIR /tests
+
+# Копируем файлы приложения (для тестирования) и тесты
+COPY test-app.py /tests/test-app.py
+
+# Устанавливаем зависимости для тестов
+RUN pip install requests pytest flask
+
+# Запускаем тесты
+CMD ["pytest", "test_app.py"]
