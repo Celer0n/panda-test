@@ -4,14 +4,15 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 app = Flask(__name__)
 
-# Подключение метрик для Prometheus
-app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
-    '/metrics': make_wsgi_app()
-})
-
 @app.route("/")
 def hello():
     return "Hello, World!"
 
+# Create a DispatcherMiddleware to combine Flask and Prometheus apps
+application = DispatcherMiddleware(app.wsgi_app, {
+    '/metrics': make_wsgi_app()
+})
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    from werkzeug.serving import run_simple
+    run_simple("0.0.0.0", 5000, application)
