@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE_APP = "my-python-app"
         DOCKER_IMAGE_TEST = "my-python-test"
         DOCKER_COMPOSE_FILE = "./Docker/docker-compose.yml"
-        IMAGE_VERSION = "v1.0.1"
+        IMAGE_VERSION = "v1.0.2"
     }
 
     stages {
