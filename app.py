@@ -1,5 +1,5 @@
 from flask import Flask
-from prometheus_client import Counter, Gauge, Histogram, Summary, generate_latest
+from prometheus_client import Counter, Gauge, Histogram
 from prometheus_client import make_wsgi_app
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -16,12 +16,7 @@ def hello():
     with REQUEST_LATENCY.time():
         return "Hello, World!"
 
-@app.route("/metrics")
-def metrics():
-    # Экспорт метрик для Prometheus
-    return generate_latest()
-
-# Подключение метрик в качестве отдельного маршрута
+# Подключение метрик через DispatcherMiddleware
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
     '/metrics': make_wsgi_app()
 })
