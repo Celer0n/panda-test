@@ -8,15 +8,14 @@ app = Flask(__name__)
 # Метрики
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint'])
 REQUEST_LATENCY = Histogram('http_request_duration_seconds', 'Request latency')
-ACTIVE_REQUESTS = Gauge('active_requests', 'Number of active requests')
 
 @app.route("/")
 def hello():
     REQUEST_COUNT.labels(method='GET', endpoint='/').inc()
     with REQUEST_LATENCY.time():
-        return "Hello, World!"
+        return "Hello, Prometheus!"
 
-# Подключение метрик через DispatcherMiddleware
+# Подключение Prometheus метрик
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
     '/metrics': make_wsgi_app()
 })
