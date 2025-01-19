@@ -15,7 +15,7 @@ ACTIVE_REQUESTS = Gauge('active_requests', 'Number of active requests')
 def hello():
     REQUEST_COUNT.labels(method='GET', endpoint='/').inc()  # Считаем запросы
     with REQUEST_LATENCY.time():  # Засекаем время выполнения
-        return "Hello, Jenkins!"
+        return "Hello, Jenkins!!!"
 
 # Создаем комбинированное WSGI-приложение
 application = DispatcherMiddleware(app, {
